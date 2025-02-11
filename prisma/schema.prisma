@@ -24,8 +24,8 @@ model User{
 }
 
 model Links{
-  id Int @id @default (autoincrement())
-  userId Int @unique
+  id Int @id @unique @default (autoincrement())
+  userId Int 
   LongUrl String 
   shortUrl String
   createdAt DateTime @default(now())

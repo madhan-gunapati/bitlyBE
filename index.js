@@ -36,18 +36,38 @@ app.get('/', (req, res)=>{
 })
 
 app.put('/user-registration',async (req, res)=>{
-    console.log(req.body)
+    
     const {name , email } = req.body
     const db_response =await prisma.user.create({
         data:{name, email}
     })
-    console.log(db_response)
+    
     res.send('New User is Registered')
     
 })
 
-app.put('/link-storing',(req, res)=>{
-    res.send('This is the Short url')
+app.put('/short-url',async(req, res)=>{
+    console.log(req.body)
+    const {input_url , email} = req.body
+    const user = await prisma.user.findUnique({where:{
+        email
+    }})
+    const {id} = user
+    console.log(user, id)
+    const short_url = 'bitly/'+String(nanoid(4))
+    const userId = id
+
+    
+
+    const storage_result = await prisma.links.create({
+        data:{
+            LongUrl:input_url , shortUrl:short_url,
+            user :{connect:{id:userId}}
+        }
+    })
+    console.log(storage_result)
+    res.send(short_url)
+
 })
 
 app.listen(3000, ()=>{

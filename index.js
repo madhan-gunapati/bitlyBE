@@ -54,7 +54,7 @@ app.put('/short-url',async(req, res)=>{
     }})
     const {id} = user
     console.log(user, id)
-    const short_url = 'bitly/'+String(nanoid(4))
+    const short_url = 'tiny/'+String(nanoid(4))
     const userId = id
 
     

@@ -53,7 +53,7 @@ app.put('/short-url',async(req, res)=>{
         email
     }})
     const {id} = user
-    console.log(user, id)
+    
     const short_url = 'tiny/'+String(nanoid(4))
     const userId = id
 
@@ -65,9 +65,18 @@ app.put('/short-url',async(req, res)=>{
             user :{connect:{id:userId}}
         }
     })
-    console.log(storage_result)
+    
     res.send(short_url)
 
+})
+app.put('/redirection-url',async(req, res)=>{
+    
+    const {short_url} = req.body
+    console.log(short_url)
+    const result= await prisma.links.findMany({where:{
+        shortUrl:short_url
+    }})
+    res.send(result[0].LongUrl)
 })
 
 app.listen(3000, ()=>{

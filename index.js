@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors'
+import bcrypt from 'bcrypt'
 const app = express();
 app.use(express.json())
 app.use(cors())
@@ -37,12 +38,22 @@ app.get('/', (req, res)=>{
 
 app.put('/user-registration',async (req, res)=>{
     
-    const {name , email } = req.body
+    const {name , email , password} = req.body
+    console.log(req.body)
+    const hashed_password  = await bcrypt.hash(password , 10)
+    console.log(hashed_password)
+    try{
     const db_response =await prisma.user.create({
-        data:{name, email}
+        data:{name, email, password:hashed_password}
     })
-    
-    res.send('New User is Registered')
+    console.log(db_response)
+    const {id} = db_response
+    res.send(JSON.stringify({id}))
+    }
+    catch(e){
+        console.log(e.message, 'the Error')
+        res.status(400).send( e.message)
+    }
     
 })
 

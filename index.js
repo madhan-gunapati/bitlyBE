@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 const app = express();
 app.use(express.json())
 app.use(cors())
@@ -10,6 +11,8 @@ import { PrismaClient } from '@prisma/client';
 
 
 const prisma = new PrismaClient();
+
+
 
 const putDatainDB = async()=>{
     
@@ -39,26 +42,65 @@ app.get('/', (req, res)=>{
 app.put('/user-registration',async (req, res)=>{
     
     const {name , email , password} = req.body
-    console.log(req.body)
+    
     const hashed_password  = await bcrypt.hash(password , 10)
-    console.log(hashed_password)
+    
     try{
     const db_response =await prisma.user.create({
         data:{name, email, password:hashed_password}
     })
-    console.log(db_response)
+    
     const {id} = db_response
     res.send(JSON.stringify({id}))
     }
     catch(e){
-        console.log(e.message, 'the Error')
-        res.status(400).send( e.message)
+       
+        if(e.code=='P2002'){
+            
+            res.status(400).send('Unique Constraint Violation')
+        }
+        else{
+            
+            res.send('Bad Request')
+        }
     }
     
 })
 
+app.post('/login', async(req, res)=>{
+    //check if username is present, if yes, compare the hashed password. 
+    //if ok create a jwt token and send it back
+    //else 
+    
+    const {username, password} = req.body
+    const username_found = await prisma.user.findMany({
+        where:{name:username}
+    })
+    if(username_found.length === 0){
+        res.send('User Not Found')
+    }
+    else{
+        const hashed_password = username_found[0].password
+        
+        
+        const result  = await bcrypt.compare(password, hashed_password)
+        
+        if(result){
+            const payload = {username}
+            const token = jwt.sign(payload, 'my-secret-token')
+            res.send(token)
+        }
+        else{
+            res.send('Incorrect Password')
+        }
+        
+    }
+    
+   
+})
+
 app.put('/short-url',async(req, res)=>{
-    console.log(req.body)
+    
     const {input_url , email} = req.body
     const user = await prisma.user.findUnique({where:{
         email
@@ -83,7 +125,7 @@ app.put('/short-url',async(req, res)=>{
 app.put('/redirection-url',async(req, res)=>{
     
     const {short_url} = req.body
-    console.log(short_url)
+    
     const result= await prisma.links.findMany({where:{
         shortUrl:short_url
     }})

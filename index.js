@@ -35,8 +35,19 @@ putDatainDB();
 
 // console.log(nanoid(5))
 
-app.get('/', (req, res)=>{
+const authorization_middleware = (req, res, next)=>{
+    const token = req.headers.authorization.split(" ")[1]
+    console.log(token)
+    const user = jwt.verify(token, 'my-secret-token')
+    req.user = user
+    console.log(user)
+    next()
+}
+
+app.get('/',authorization_middleware , (req, res)=>{
+    console.log(req.user)
     res.send('App is working Fine')
+    
 })
 
 app.put('/user-registration',async (req, res)=>{
@@ -77,7 +88,7 @@ app.post('/login', async(req, res)=>{
         where:{name:username}
     })
     if(username_found.length === 0){
-        res.send('User Not Found')
+        res.status(404).send('User Not Found')
     }
     else{
         const hashed_password = username_found[0].password
@@ -91,7 +102,7 @@ app.post('/login', async(req, res)=>{
             res.send(token)
         }
         else{
-            res.send('Incorrect Password')
+            res.status(404).send('Incorrect Password')
         }
         
     }

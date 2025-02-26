@@ -37,15 +37,16 @@ putDatainDB();
 
 const authorization_middleware = (req, res, next)=>{
     const token = req.headers.authorization.split(" ")[1]
-    console.log(token)
-    const user = jwt.verify(token, 'my-secret-token')
-    req.user = user
-    console.log(user)
+    
+    
+    const email = jwt.verify(token, 'my-secret-token')
+    req.email = email
+    
     next()
 }
 
 app.get('/',authorization_middleware , (req, res)=>{
-    console.log(req.user)
+    
     res.send('App is working Fine')
     
 })
@@ -83,21 +84,21 @@ app.post('/login', async(req, res)=>{
     //if ok create a jwt token and send it back
     //else 
     
-    const {username, password} = req.body
-    const username_found = await prisma.user.findMany({
-        where:{name:username}
+    const {email, password} = req.body
+    const email_found = await prisma.user.findUnique({
+        where:{email:email}
     })
-    if(username_found.length === 0){
+    if(email_found.length === 0){
         res.status(404).send('User Not Found')
     }
     else{
-        const hashed_password = username_found[0].password
+        const hashed_password = email_found.password
         
         
         const result  = await bcrypt.compare(password, hashed_password)
         
         if(result){
-            const payload = {username}
+            const payload = {email}
             const token = jwt.sign(payload, 'my-secret-token')
             res.send(token)
         }
@@ -110,9 +111,10 @@ app.post('/login', async(req, res)=>{
    
 })
 
-app.put('/short-url',async(req, res)=>{
+app.put('/short-url',authorization_middleware,async(req, res)=>{
     
-    const {input_url , email} = req.body
+    const {input_url } = req.body
+    const {email} = req.email
     const user = await prisma.user.findUnique({where:{
         email
     }})
@@ -137,10 +139,16 @@ app.put('/redirection-url',async(req, res)=>{
     
     const {short_url} = req.body
     
+    
     const result= await prisma.links.findMany({where:{
         shortUrl:short_url
     }})
+    if(result.length === 0){
+        res.send('www.notfound.com')
+    }
+    else{
     res.send(result[0].LongUrl)
+    }
 })
 
 app.listen(3000, ()=>{

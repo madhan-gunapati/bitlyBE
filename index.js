@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 
 
 
-const putDatainDB = async()=>{
+//const putDatainDB = async()=>{
     
 //   const res1=  await prisma.user.create({
 //         data:{
@@ -29,13 +29,14 @@ const putDatainDB = async()=>{
 //     })
 //     console.log(res2)
     
-}
+//}
 
-putDatainDB();
+//putDatainDB();
 
 // console.log(nanoid(5))
 
 const authorization_middleware = (req, res, next)=>{
+    try{
     const token = req.headers.authorization.split(" ")[1]
     
     
@@ -43,15 +44,19 @@ const authorization_middleware = (req, res, next)=>{
     req.email = email
     
     next()
+    }
+    catch(e){
+       next(e)
+    }
 }
 
-app.get('/',authorization_middleware , (req, res)=>{
+app.get('/', (req, res)=>{
     
     res.send('App is working Fine')
     
 })
 
-app.put('/user-registration',async (req, res)=>{
+app.put('/user-registration',async (req, res, next)=>{
     
     const {name , email , password} = req.body
     
@@ -73,17 +78,16 @@ app.put('/user-registration',async (req, res)=>{
         }
         else{
             
-            res.send('Bad Request')
+           next(e)
         }
     }
     
 })
 
-app.post('/login', async(req, res)=>{
-    //check if username is present, if yes, compare the hashed password. 
-    //if ok create a jwt token and send it back
-    //else 
+app.post('/login', async(req, res, next)=>{
     
+    
+    try{
     const {email, password} = req.body
     const email_found = await prisma.user.findUnique({
         where:{email:email}
@@ -107,11 +111,15 @@ app.post('/login', async(req, res)=>{
         }
         
     }
+}
+catch(e){
+    next(e)
+}
     
    
 })
 
-app.put('/short-url',authorization_middleware,async(req, res)=>{
+app.put('/short-url',authorization_middleware,async(req, res, next)=>{
     
     const {input_url } = req.body
     const {email} = req.email
@@ -123,7 +131,7 @@ app.put('/short-url',authorization_middleware,async(req, res)=>{
     const short_url = 'tiny/'+String(nanoid(4))
     const userId = id
 
-    
+    try{
 
     const storage_result = await prisma.links.create({
         data:{
@@ -133,12 +141,17 @@ app.put('/short-url',authorization_middleware,async(req, res)=>{
     })
     
     res.send(short_url)
+}
+catch(e){
+    next(e)
+}
 
 })
-app.put('/redirection-url',async(req, res)=>{
+app.put('/redirection-url',async(req, res, next)=>{
     
     const {short_url} = req.body
     
+    try{
     
     const result= await prisma.links.findMany({where:{
         shortUrl:short_url
@@ -149,6 +162,15 @@ app.put('/redirection-url',async(req, res)=>{
     else{
     res.send(result[0].LongUrl)
     }
+}
+catch(e){
+    next(e)
+}
+})
+
+app.use((error, req, res, next)=>{
+    console.log(error.stack)
+    res.send(500).json({ message: error.message });
 })
 
 app.listen(3000, ()=>{

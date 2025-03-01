@@ -174,5 +174,5 @@ app.use((error, req, res, next)=>{
 })
 
 app.listen(3000, "0.0.0.0",()=>{
-    console.log('App started Working')
+    console.log('App started Working in 0.0.0.0')
 })

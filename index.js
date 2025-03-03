@@ -92,7 +92,9 @@ app.post('/login', async(req, res, next)=>{
     const email_found = await prisma.user.findUnique({
         where:{email:email}
     })
-    if(email_found.length === 0){
+    
+    if(email_found===null){
+        
         res.status(404).send('User Not Found')
     }
     else{
@@ -156,7 +158,7 @@ app.put('/redirection-url',async(req, res, next)=>{
     const result= await prisma.links.findMany({where:{
         shortUrl:short_url
     }})
-    if(result.length === 0){
+    if(result === null){
         res.send('www.notfound.com')
     }
     else{
@@ -169,10 +171,10 @@ catch(e){
 })
 
 app.use((error, req, res, next)=>{
-    console.log(error.stack)
+    
     res.send(500).json({ message: error.message });
 })
 
-app.listen(80, "0.0.0.0",()=>{
-    console.log('App started Working in port 80')
+app.listen(443,()=>{
+    console.log('App started Working in port 443')
 })

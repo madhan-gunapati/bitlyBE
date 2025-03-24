@@ -1,12 +1,5 @@
 import  { Request , Response , NextFunction} from 'express';
-// import   express   from 'express';
-// import  cors from 'cors'
-// import  bcrypt from 'bcrypt'
-// import   jwt  from 'jsonwebtoken'
 import { nanoid } from 'nanoid';
-
-
-
 import { PrismaClient } from '@prisma/client';
 
 
@@ -15,8 +8,8 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-
 const app = express();
+
 app.use(express.json())
 app.use(cors())
 
@@ -32,10 +25,6 @@ interface Incoming_Request extends Request{
 
 
 const prisma = new PrismaClient();
-
-
-
-
 
 
 
@@ -63,7 +52,7 @@ app.get('/', (req:Request, res:Response)=>{
 })
 
 app.put('/user-registration',async (req:Incoming_Request, res:Response, next:NextFunction)=>{
-    
+    console.log('came here')
     const {name , email , password} = req.body
     
     const hashed_password  = await bcrypt.hash(password , 10)
@@ -198,6 +187,9 @@ app.use((error:unknown, req:Request, res:Response, next:NextFunction)=>{
     
 })
 
-app.listen(3000,()=>{
+ const server = app.listen(3000,()=>{
     console.log('App started Working, FE still in progress...Thanks for reaching... ')
 })
+
+export  {app , server }; 
+

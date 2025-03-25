@@ -1,5 +1,5 @@
-const app = require('./dist/index')
-const server = require('./dist/index')
+const {default:app} = require('./dist/app')
+
 const request =  require('supertest')
 
 describe('first route' , ()=>{
@@ -7,7 +7,5 @@ describe('first route' , ()=>{
         const response = await request(app).get('/');
         expect(response.statusCode).toBe(200)
     })
-    afterAll((done)=>{
-        server.close(done);
-    })
+   
 })

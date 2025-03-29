@@ -1,10 +1,11 @@
 import  { Request , Response , NextFunction} from 'express';
 import { nanoid } from 'nanoid';
-import { PrismaClient } from '@prisma/client';
+import { prismaClient } from './db';
+
+import express from 'express'
 
 
-
-const express = require('express');
+// const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
@@ -24,7 +25,7 @@ interface Incoming_Request extends Request{
 }
 
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 
 
@@ -52,18 +53,20 @@ app.get('/', (req:Request, res:Response)=>{
 })
 
 app.put('/user-registration',async (req:Incoming_Request, res:Response, next:NextFunction)=>{
-    console.log('came here')
+    
     const {name , email , password} = req.body
     
     const hashed_password  = await bcrypt.hash(password , 10)
     
     try{
-    const db_response =await prisma.user.create({
+    const db_response =await prismaClient.user.create({
         data:{name, email, password:hashed_password}
     })
     
     const {id} = db_response
-    res.send(JSON.stringify({id}))
+    
+    res.json({id})
+   // res.send(db_response)
     }
     catch(e:any){
        
@@ -84,7 +87,7 @@ app.post('/login', async(req:Incoming_Request, res:Response, next:NextFunction)=
     
     try{
     const {email, password}:{email:string , password:any} = req.body
-    const email_found = await prisma.user.findUnique({
+    const email_found = await prismaClient.user.findUnique({
         where:{email:email}
     })
     
@@ -126,7 +129,7 @@ app.put('/short-url',authorization_middleware,async(req:Incoming_Request, res:Re
    
     const {email} = req.email
     
-    const user = await prisma.user.findUnique({where:{
+    const user = await prismaClient.user.findUnique({where:{
         email
     }})
     if(!user){
@@ -142,7 +145,7 @@ app.put('/short-url',authorization_middleware,async(req:Incoming_Request, res:Re
 
   
 
-    const storage_result = await prisma.links.create({
+    const storage_result = await prismaClient.links.create({
         data:{
             LongUrl:input_url , shortUrl:short_url,
             user :{connect:{id:userId}}
@@ -162,7 +165,7 @@ app.put('/redirection-url',async(req:Incoming_Request, res:Response, next:NextFu
     
     try{
     
-    const result= await prisma.links.findMany({where:{
+    const result= await prismaClient.links.findMany({where:{
         shortUrl:short_url
     }})
     if(result === null){

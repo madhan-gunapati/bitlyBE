@@ -3,12 +3,13 @@ import { nanoid } from 'nanoid';
 import { prismaClient } from './db';
 
 import express from 'express'
-
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
 // const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
+// const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken')
 const app = express();
 
 app.use(express.json())
@@ -90,6 +91,7 @@ app.post('/login', async(req:Incoming_Request, res:Response, next:NextFunction)=
     const email_found = await prismaClient.user.findUnique({
         where:{email:email}
     })
+   
     
     if(email_found===null){
         
@@ -100,9 +102,12 @@ app.post('/login', async(req:Incoming_Request, res:Response, next:NextFunction)=
         
         
         const result  = await bcrypt.compare(password, hashed_password)
+
+        
         
         if(result){
             const payload = {email}
+           
             const token = jwt.sign(payload, 'my-secret-token')
             res.send(token)
         }

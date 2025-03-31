@@ -35,11 +35,14 @@ const authorization_middleware = (req :Incoming_Request, res:Response, next:Next
     const token = req.headers.authorization?.split(" ")[1]
     
     if(token !== undefined){
-    const email = jwt.verify(token, 'my-secret-token') as payload
-
-    req.email = email
+    const {email} = jwt.verify(token, 'my-secret-token') as payload
+        
+    req.email = {email}
     
     next()
+    }
+    else{
+        res.status(404).send('invalid token')
     }
     }
     catch(e){
@@ -94,7 +97,7 @@ app.post('/login', async(req:Incoming_Request, res:Response, next:NextFunction)=
    
     
     if(email_found===null){
-        
+       
         res.status(404).send('User Not Found')
     }
     else{
@@ -118,6 +121,7 @@ app.post('/login', async(req:Incoming_Request, res:Response, next:NextFunction)=
     }
 }
 catch(e){
+    
     next(e)
 }
     
@@ -172,6 +176,7 @@ app.put('/redirection-url',async(req:Incoming_Request, res:Response, next:NextFu
     
     const result= await prismaClient.links.findMany({where:{
         shortUrl:short_url
+        //have to change this to unique constraint in the db, to use findUnique
     }})
     if(result === null){
         res.send('www.notfound.com')

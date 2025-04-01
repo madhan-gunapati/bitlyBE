@@ -5,6 +5,7 @@ import { prismaClient } from './db';
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
+import { error } from 'console';
 
 // const express = require('express');
 const cors = require('cors');
@@ -43,6 +44,7 @@ const authorization_middleware = (req :Incoming_Request, res:Response, next:Next
     }
     else{
         res.status(404).send('invalid token')
+        return ;
     }
     }
     catch(e){
@@ -90,15 +92,18 @@ app.post('/login', async(req:Incoming_Request, res:Response, next:NextFunction)=
     
     
     try{
+        
     const {email, password}:{email:string , password:any} = req.body
     const email_found = await prismaClient.user.findUnique({
         where:{email:email}
     })
    
     
+    
     if(email_found===null){
        
         res.status(404).send('User Not Found')
+        
     }
     else{
         const hashed_password = email_found.password
@@ -113,15 +118,20 @@ app.post('/login', async(req:Incoming_Request, res:Response, next:NextFunction)=
            
             const token = jwt.sign(payload, 'my-secret-token')
             res.send(token)
+            
         }
         else{
             res.status(404).send('Incorrect Password')
+            
         }
         
     }
 }
 catch(e){
-    
+    // if(e instanceof Error){
+    //     res.send(404)
+    // console.log(e.message)
+    // }
     next(e)
 }
     
@@ -191,11 +201,14 @@ catch(e){
 })
 
 app.use((error:unknown, req:Request, res:Response, next:NextFunction)=>{
+    
     if(error instanceof Error){
-    res.send(500).json({ message: error.message });
+        
+    res.sendStatus(500)
+   // res.sendStatus(404)
     }
     else{
-        res.send(500).json({message:'unknown Error'})
+        res.status(500).json({message:'unknown Error'})
     }
     
 })

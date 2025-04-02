@@ -158,7 +158,7 @@ app.put('/short-url',authorization_middleware,async(req:Incoming_Request, res:Re
 
     const {id} = user
     
-    const short_url = 'tiny/'+String(nanoid(4))
+    const short_url = 'bitly-fe-ts.vercel.app/'+String(nanoid(4))
     
     const userId = id
 

@@ -111,7 +111,7 @@ describe('short url generation' , ()=>{
 
 describe('test for Redirection URL' , ()=>{
     it('should give a not found url' , async()=>{
-        prismaClient.links.findMany.mockResolvedValue(null)
+        prismaClient.links.findMany.mockResolvedValue([])
         const res = await request(app).put('/redirection-url').send({"short_url":"sample"})
         expect(res.statusCode).toBe(200)
         expect(res.text).toBe('www.notfound.com')
@@ -125,6 +125,7 @@ describe('test for Redirection URL' , ()=>{
             shortUrl: 'tiny/sample',
             createdAt: mockDate}])
         const res = await request(app).put('/redirection-url').send({"short_url":"sample"})
+        
         expect(res.statusCode).toBe(200)
         
     })

@@ -190,10 +190,12 @@ app.put('/redirection-url',async(req:Incoming_Request, res:Response, next:NextFu
     }})
     
     
-    if(result.length===0){
+    if(result.length===0 ){
+        
         res.send('www.notfound.com')
     }
     else{
+        
     res.send(result[0].LongUrl)
     }
 }
@@ -205,7 +207,7 @@ catch(e){
 app.use((error:unknown, req:Request, res:Response, next:NextFunction)=>{
     
     if(error instanceof Error){
-        console.log(error)
+        
     res.sendStatus(500)
    // res.sendStatus(404)
     }

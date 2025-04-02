@@ -188,7 +188,9 @@ app.put('/redirection-url',async(req:Incoming_Request, res:Response, next:NextFu
         shortUrl:short_url
         //have to change this to unique constraint in the db, to use findUnique
     }})
-    if(result === null){
+    
+    
+    if(result.length===0){
         res.send('www.notfound.com')
     }
     else{
@@ -203,7 +205,7 @@ catch(e){
 app.use((error:unknown, req:Request, res:Response, next:NextFunction)=>{
     
     if(error instanceof Error){
-        
+        console.log(error)
     res.sendStatus(500)
    // res.sendStatus(404)
     }

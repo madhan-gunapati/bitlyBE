@@ -115,7 +115,7 @@ describe('test for Redirection URL' , ()=>{
         const res = await request(app).get('/redirection-url')
         
         expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe('https://www.notfound.com');
+    expect(res.headers.location).toBe('https://bitly-fe-ts.vercel.app/');
         
     })
     it('should give a redirection url' , async()=>{

@@ -194,13 +194,18 @@ app.get('/:short_url',async(req:Incoming_Request, res:Response, next:NextFunctio
     
     if(result.length===0 ){
         
-        res.redirect('https://www.notfound.com')
+        res.redirect('https://bitly-fe-ts.vercel.app/')
     }
     else{
-
-    res.redirect('https://'+result[0].LongUrl)
+        const url = result[0].LongUrl
+        if(url.startsWith('http://') || url.startsWith('https://')){
+            res.redirect(url)
+        }
+        else{
+            res.redirect('https://'+url)
+            }
+        }
     }
-}
 catch(e){
     next(e)
 }

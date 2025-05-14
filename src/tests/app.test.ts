@@ -32,12 +32,12 @@ describe('test suite 1' , ()=>{
 
 
 
-describe('route / GET' , ()=>{
-    it('normal response' , async()=>{
-        const res = await request(app).get('/')
-        expect(res.statusCode).toBe(200)
-    })
-})
+// describe('route / GET' , ()=>{
+//     it('normal response' , async()=>{
+//         const res = await request(app).get('/')
+//         expect(res.statusCode).toBe(200)
+//     })
+// })
 
 describe('route PUT /user-registration' , ()=>{
     it('new user reg' , async()=>{
@@ -112,9 +112,10 @@ describe('short url generation' , ()=>{
 describe('test for Redirection URL' , ()=>{
     it('should give a not found url' , async()=>{
         prismaClient.links.findMany.mockResolvedValue([])
-        const res = await request(app).put('/redirection-url').send({"short_url":"sample"})
-        expect(res.statusCode).toBe(200)
-        expect(res.text).toBe('www.notfound.com')
+        const res = await request(app).get('/redirection-url')
+        
+        expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe('https://www.notfound.com');
         
     })
     it('should give a redirection url' , async()=>{
@@ -124,9 +125,10 @@ describe('test for Redirection URL' , ()=>{
             LongUrl: 'www.google.com',
             shortUrl: 'tiny/sample',
             createdAt: mockDate}])
-        const res = await request(app).put('/redirection-url').send({"short_url":"sample"})
+        const res = await request(app).get('/redirection-url').send({"short_url":"sample"})
         
-        expect(res.statusCode).toBe(200)
+        expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe('https://www.google.com');
         
     })
 })

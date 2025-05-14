@@ -52,11 +52,11 @@ const authorization_middleware = (req :Incoming_Request, res:Response, next:Next
     }
 }
 
-app.get('/', (req:Request, res:Response)=>{
+// app.get('/', (req:Request, res:Response)=>{
     
-    res.send('App is working Fine')
+//     res.send('App is working Fine')
     
-})
+// })
 
 app.put('/user-registration',async (req:Incoming_Request, res:Response, next:NextFunction)=>{
     
@@ -158,7 +158,7 @@ app.put('/short-url',authorization_middleware,async(req:Incoming_Request, res:Re
 
     const {id} = user
     
-    const short_url = '13.48.194.218/'+String(nanoid(4))
+    const short_url = 'emjey.live/'+String(nanoid(4))
     
     const userId = id
 
@@ -178,25 +178,27 @@ catch(e){
 }
 
 })
-app.put('/redirection-url',async(req:Incoming_Request, res:Response, next:NextFunction)=>{
+
+
+app.get('/:short_url',async(req:Incoming_Request, res:Response, next:NextFunction)=>{
     
-    const {short_url} = req.body
-    
+    const {short_url} = req.params
+    console.log('emjey.live/'+short_url)
     try{
     
     const result= await prismaClient.links.findMany({where:{
-        shortUrl:short_url
+        shortUrl:'emjey.live/'+short_url
         //have to change this to unique constraint in the db, to use findUnique
     }})
     
     
     if(result.length===0 ){
         
-        res.send('www.notfound.com')
+        res.redirect('https://www.notfound.com')
     }
     else{
-        
-    res.send(result[0].LongUrl)
+
+    res.redirect('https://'+result[0].LongUrl)
     }
 }
 catch(e){
@@ -207,7 +209,7 @@ catch(e){
 app.use((error:unknown, req:Request, res:Response, next:NextFunction)=>{
     
     if(error instanceof Error){
-        
+        console.log(error.message)
     res.sendStatus(500)
    // res.sendStatus(404)
     }
